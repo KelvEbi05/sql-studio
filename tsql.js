@@ -33,8 +33,8 @@ function translateTsql(sql) {
   return statements.map(translateStatement).join(';\n');
 }
 function translateStatement(tokens) {
-  if (tokens[0].word !== 'SELECT') throw Error('This offline simulator supports SELECT exercises only. USE, CREATE, INSERT, UPDATE, procedures and server administration require SQL Server.');
-  const blocked = new Set(['LIMIT','IFNULL','PRAGMA','ATTACH','DETACH','INTO','PERCENT','TIES','OFFSET','FETCH','COLLATE','OVER']);
+  if (!['SELECT','WITH'].includes(tokens[0].word)) throw Error('This offline simulator supports SELECT exercises only. USE, CREATE, INSERT, UPDATE, procedures and server administration require SQL Server.');
+  const blocked = new Set(['LIMIT','IFNULL','PRAGMA','ATTACH','DETACH','INTO','PERCENT','TIES','OFFSET','FETCH','COLLATE','INSERT','UPDATE','DELETE','CREATE','DROP','ALTER','REPLACE','RECURSIVE']);
   for (const t of tokens) {
     if (blocked.has(t.word)) throw Error(t.word === 'LIMIT' ? 'Use SQL Server syntax: SELECT TOP (3) ... ORDER BY ...; LIMIT is not T-SQL.' : `${t.text} is not supported in this offline practice simulator.`);
     if (t.text === '`' || t.text === '@' || t.text === '|') throw Error('Use the supported T-SQL lesson syntax. Variables, backticks and || are not supported.');
@@ -63,7 +63,7 @@ function translateStatement(tokens) {
         output.push('(', ...transform(items.slice(i+1,end)), ')'); i = end;
       } else if (t.text === ')') throw Error('Unexpected closing parenthesis.');
       else if (t.word === 'TOP') throw Error('Place TOP immediately after SELECT (or SELECT DISTINCT).');
-      else if (['UNION','EXCEPT','INTERSECT'].includes(t.word)) throw Error('Set operators are not included in this offline simulator.');
+      else if (['UNION','EXCEPT','INTERSECT'].includes(t.word)) { if(top!==null) throw Error('For this simulator, put TOP inside a subquery before combining result sets.'); seenSelect=false; output.push(t.text); }
       else if ((t.word === 'DBO' || t.text.toUpperCase() === '[DBO]') && items[i+1]?.text === '.') i++;
       else if (t.word === 'ISNULL' && items[i+1]?.text === '(') output.push('IFNULL');
       else if (t.word === 'LEN' && items[i+1]?.text === '(') output.push('TSQL_LEN');

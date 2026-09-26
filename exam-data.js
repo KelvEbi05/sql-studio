@@ -1,0 +1,15 @@
+const examQuestions = [
+ {level:'Beginner',task:'Return name and city for students in Abuja, sorted by name.',answer:"SELECT name, city FROM students WHERE city = 'Abuja' ORDER BY name;",ordered:true},
+ {level:'Beginner',task:'Return name and score for the two highest-scoring students, highest score first.',answer:'SELECT TOP (2) name, score FROM students ORDER BY score DESC;',ordered:true},
+ {level:'Beginner',task:'Return every distinct city, sorted alphabetically.',answer:'SELECT DISTINCT city FROM students ORDER BY city;',ordered:true},
+ {level:'Beginner',task:'Return the name of each student without an assigned course.',answer:'SELECT name FROM students WHERE course_id IS NULL;'},
+ {level:'Intermediate',task:'Return city and COUNT(*) AS total for cities with at least two students, sorted by city.',answer:'SELECT city, COUNT(*) AS total FROM students GROUP BY city HAVING COUNT(*) >= 2 ORDER BY city;',ordered:true,names:true},
+ {level:'Intermediate',task:'Return each assigned student’s name and course title, sorted by student name.',answer:'SELECT s.name, c.title FROM students s JOIN courses c ON s.course_id = c.id ORDER BY s.name;',ordered:true},
+ {level:'Intermediate',task:'Return name and a column named band: High if score is at least 85, otherwise Standard. Sort by name.',answer:"SELECT name, CASE WHEN score >= 85 THEN 'High' ELSE 'Standard' END AS band FROM students ORDER BY name;",ordered:true,names:true},
+ {level:'Intermediate',task:'Return name and score for students above the class average score, sorted by name. Calculate the average as a decimal.',answer:'SELECT name, score FROM students WHERE score > (SELECT AVG(CAST(score AS FLOAT)) FROM students) ORDER BY name;',ordered:true},
+ {level:'Advanced',task:'Return name, city, score and position, where position is ROW_NUMBER within each city from highest score to lowest (break ties by id). Sort by city then position.',answer:'SELECT name, city, score, ROW_NUMBER() OVER (PARTITION BY city ORDER BY score DESC, id) AS position FROM students ORDER BY city, position;',ordered:true,names:true},
+ {level:'Advanced',task:'Return name, city and score for one highest-scoring student per city. Break ties by lowest id and sort the final result by city.',answer:'WITH ranked AS (SELECT id, name, city, score, ROW_NUMBER() OVER (PARTITION BY city ORDER BY score DESC, id) AS position FROM students) SELECT name, city, score FROM ranked WHERE position = 1 ORDER BY city;',ordered:true},
+ {level:'Advanced',task:'Return id, score and running_score: the cumulative score in id order with an explicit ROWS frame. Sort by id.',answer:'SELECT id, score, SUM(score) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_score FROM students ORDER BY id;',ordered:true,names:true},
+ {level:'Advanced',task:'Return every course title and COUNT(s.id) AS total, including courses with no students. Sort by title.',answer:'SELECT c.title, COUNT(s.id) AS total FROM courses c LEFT JOIN students s ON s.course_id = c.id GROUP BY c.id, c.title ORDER BY c.title;',ordered:true,names:true}
+];
+if(typeof module !== 'undefined') module.exports={examQuestions};
